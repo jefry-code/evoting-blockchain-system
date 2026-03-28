@@ -1,0 +1,1058 @@
+/* --- Root Variables (Smooth Theme Transitions) --- */
+:root {
+    --bg-body: #f8fafc;
+    --bg-card: #ffffff;
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    --accent: #2563eb;
+    --accent-light: #dbeafe;
+    --border: #e2e8f0;
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    --bg-vote-wrapper: rgba(15, 23, 42, 0.04); /* Abu-abu tipis untuk light mode */
+    --border-vote-wrapper: rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="dark"] {
+    --bg-body: #020617;
+    --bg-card: #0f172a;
+    --text-primary: #f8fafc;    /* Putih terang */
+    --text-secondary: #cbd5e1;  /* Abu terang agar kontras */
+    --text-muted: #94a3b8;
+    --accent: #3b82f6;
+    --accent-light: rgba(59, 130, 246, 0.15);
+    --border: #1e293b;
+    --glass-bg: rgba(15, 23, 42, 0.9);
+    --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+    --bg-vote-wrapper: rgba(255, 255, 255, 0.04); /* Putih tipis untuk dark mode */
+    --border-vote-wrapper: rgba(255, 255, 255, 0.1);
+}
+
+/* --- Base Styles --- */
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: var(--bg-body);
+    color: var(--text-primary);
+    transition: background-color 0.4s ease, color 0.4s ease;
+    min-height: 100vh;
+    margin: 0;
+}
+
+/* Fix Global: Memaksa semua teks mengikuti variabel tema */
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+    color: var(--text-primary) !important;
+}
+
+p, span, small, label {
+    color: var(--text-secondary);
+}
+
+/* Container pembungkus dot dan teks */
+.status-indicator {
+    line-height: 1;
+    margin-top: 2px;
+}
+
+.status-text {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Lingkaran Dot Hijau */
+.dot {
+    width: 8px;
+    height: 8px;
+    background-color: #10b981; /* Warna hijau emerald */
+    border-radius: 50%;
+    display: inline-block;
+    position: relative;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.6); /* Efek cahaya di sekitar dot */
+}
+
+/* Efek Animasi Denyut (Pulse) */
+.dot::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: #10b981;
+    animation: pulse-dot 1.5s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+}
+
+@keyframes pulse-dot {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(2.5); opacity: 0; }
+}
+
+/* Penyesuaian Brand Logo jika diperlukan agar sejajar dengan teks dua baris */
+.brand-logo-container {
+    width: 38px;
+    height: 38px;
+    background: var(--accent);
+    color: white;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+/* Paksa warna putih untuk elemen di dalam kartu biru (Total Vote) */
+.total-vote-card, .total-vote-card * {
+    color: white !important;
+}
+
+.fw-800 { font-weight: 800; }
+.tracking-tight { letter-spacing: -0.025em; }
+
+/* --- Navbar Glassmorphism --- */
+.glass-effect {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.brand-logo {
+    width: 42px; height: 42px;
+    background: var(--accent);
+    color: white !important;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    box-shadow: 0 4px 12px var(--accent-light);
+}
+
+/* --- Total Vote Card --- */
+.total-vote-card {
+    background: linear-gradient(135deg, var(--accent), #1d4ed8);
+    padding: 2rem;
+    border-radius: 24px;
+    box-shadow: 0 20px 25px -5px var(--accent-light);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.total-vote-card::after {
+    content: '';
+    position: absolute;
+    top: -50%; right: -20%;
+    width: 200px; height: 200px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+}
+
+/* --- Grafik / Progress Bar Styling --- */
+.card {
+    background-color: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 24px !important;
+    box-shadow: var(--shadow);
+}
+
+.vote-bar-wrapper {
+    background: var(--bg-vote-wrapper) !important;
+    padding: 1rem;
+    border-radius: 16px;
+    border: 1px solid var(--border-vote-wrapper) !important;
+    transition: all 0.3s ease;
+}
+
+.vote-bar-wrapper:hover {
+    transform: translateY(-5px);
+    background: var(--accent-light) !important; /* Memberi warna aksen saat hover */
+}
+
+.progress-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+/* Memastikan nama kandidat di label progress terbaca */
+.progress-label span:first-child {
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+.progress {
+    height: 12px;
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 100px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border-radius: 100px;
+}
+
+/* --- Candidate Detail Cards --- */
+.cand-detail-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+}
+
+/* Fix teks di dalam kartu detail */
+.cand-detail-card h6 {
+    color: var(--text-primary) !important;
+    margin: 0;
+}
+
+.cand-detail-card small {
+    color: var(--text-secondary) !important;
+}
+
+.cand-detail-img {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    object-fit: cover;
+    border: 2px solid var(--border);
+}
+
+/* --- Floating Theme Button --- */
+.theme-fab {
+    position: fixed; bottom: 25px; right: 25px;
+    width: 56px; height: 56px;
+    background: var(--accent);
+    color: white !important;
+    border: none; border-radius: 18px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+    z-index: 1060; /* Di atas modal */
+}
+
+/* --- Animations & Indicators --- */
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary) !important;
+}
+
+/* Fix untuk class text-muted bootstrap agar mengikuti tema */
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Custom Styling untuk SweetAlert2 */
+.swal2-popup-custom {
+    border-radius: 24px !important;
+    border: 1px solid var(--border) !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    background-color: var(--bg-card) !important;
+    padding: 2rem !important;
+}
+
+.swal2-title-custom {
+    color: var(--text-primary) !important;
+    font-weight: 800 !important;
+    padding-top: 10px !important;
+}
+
+.swal2-html-custom {
+    color: var(--text-secondary) !important;
+    line-height: 1.6 !important;
+    margin-bottom: 20px !important;
+}
+
+/* Berikan jarak antar tombol di sini */
+.swal2-confirm-custom {
+    border-radius: 12px !important;
+    padding: 12px 24px !important;
+    font-weight: 700 !important;
+    margin-left: 10px !important; /* Jarak tombol konfirmasi */
+}
+
+.swal2-cancel-custom {
+    border-radius: 12px !important;
+    padding: 12px 24px !important;
+    font-weight: 700 !important;
+    margin-right: 10px !important; /* Jarak tombol batal */
+}
+
+/* Pastikan container tombol memberikan ruang yang cukup */
+.swal2-actions {
+    gap: 15px !important; /* Cara paling modern untuk memberi jarak */
+    margin-top: 25px !important;
+}
+
+/* --- Utilities --- */
+.text-accent { color: var(--accent) !important; }
+
+/* Responsivitas Mobile */
+@media (max-width: 768px) {
+    .total-vote-card { padding: 1.5rem; }
+    .theme-fab { bottom: 20px; right: 20px; width: 48px; height: 48px; }
+}
+
+/* --- Ultra Modern Total Vote Card --- */
+.total-vote-card {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    padding: 1.5rem !important;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 20px 40px rgba(37, 99, 235, 0.25);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Efek Cahaya Dekoratif di Background */
+.total-vote-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -20%;
+    width: 150px;
+    height: 150px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    filter: blur(30px);
+}
+
+/* Sisi Kiri (Countdown) */
+#navTimerValue {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    color: #ffffff;
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+    letter-spacing: -1px;
+}
+
+#timerLabel {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.65rem !important;
+    letter-spacing: 1px;
+}
+
+/* Sisi Kanan (Total Votes) */
+#totalVotes {
+    font-size: 2.2rem;
+    color: #ffffff;
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+#navTimerValue, #totalVotes {
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+}
+
+.vote-icon-circle {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+
+/* Garis Pemisah Vertikal */
+.v-divider {
+    width: 1px;
+    height: 50px;
+    background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.4), transparent);
+}
+
+/* Animasi Spinner Pulse */
+.spinner-grow-custom {
+    width: 8px;
+    height: 8px;
+    /* background-color dihapus dari sini karena akan diatur oleh JavaScript */
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+    margin-bottom: 1px;
+    transition: background-color 0.4s ease, box-shadow 0.4s ease; /* Transisi warna halus */
+    animation: pulse-active 1.5s infinite;
+}
+
+@keyframes pulse-active {
+    0% { 
+        transform: scale(1); 
+        /* Menggunakan currentColor atau bayangan tipis agar fleksibel */
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); 
+    }
+    70% { 
+        transform: scale(1.5); 
+        box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); 
+    }
+    100% { 
+        transform: scale(1); 
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); 
+    }
+}
+
+.border-end {
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.fw-800 { font-weight: 800; }
+
+.border-dashed {
+    border-top: 2px dashed var(--border);
+    background: none;
+    opacity: 0.5;
+}
+
+#receiptTxHash, #receiptAddress {
+    letter-spacing: 0.5px;
+}
+
+/* Efek hover pada tombol copy kecil */
+.btn-sm i:hover {
+    color: var(--bs-primary) !important;
+    transform: scale(1.1);
+}
+
+.transaction-hash-section {
+    transition: all 0.2s ease;
+}
+
+.transaction-hash-section:hover {
+    background: rgba(0,0,0,0.06) !important;
+}
+
+/* Container Utama untuk Smart Area */
+.smart-status-area {
+    /* Jarak stabil dari Navbar */
+    padding-top: 1.5rem; 
+    /* Jarak ke konten di bawahnya (Main) */
+    margin-bottom: 1.5rem; 
+}
+
+/* KUNCI UTAMA: Main Container */
+main.container {
+    /* Jika Smart Area TIDAK ADA, margin ini yang kasih jarak ke Navbar.
+       Jika Smart Area ADA, margin ini akan 'bertabrakan' secara otomatis 
+       sehingga jaraknya tidak double (tetap rapi).
+    */
+    margin-top: 2rem !important; 
+    padding-top: 0 !important;
+}
+
+/* Card Utama */
+.glass-widget {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    backdrop-filter: blur(15px) saturate(180%);
+    -webkit-backdrop-filter: blur(15px) saturate(180%);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 20px;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-widget:hover {
+    transform: translateY(-3px);
+    border-color: var(--bs-primary) !important;
+    box-shadow: 0 15px 35px rgba(99, 102, 241, 0.15);
+}
+
+.glass-widget:active {
+    transform: scale(0.98);
+}
+
+/* Bagian Konten (Kiri) */
+.widget-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.widget-icon {
+    font-size: 1.8rem;
+    color: var(--bs-primary) !important;
+    filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.3));
+    display: flex;
+    align-items: center;
+}
+
+.widget-label {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    color: var(--bs-primary) !important;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.widget-title {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+#miniAddress {
+    font-family: 'Courier New', Courier, monospace; /* Gaya blockchain */
+    opacity: 0.8;
+}
+
+/* Bagian Aksi (Kanan) */
+.widget-action {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--bs-primary) !important;
+}
+
+.badge-status {
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: rgba(99, 102, 241, 0.1);
+    padding: 6px 14px;
+    border-radius: 100px;
+    border: 1px solid rgba(99, 102, 241, 0.1);
+}
+
+/* Dark Mode Adaptation */
+[data-theme='dark'] .glass-widget {
+    background: rgba(30, 41, 59, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Animasi Muncul */
+.animate-fade-in {
+    animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Container Action tetap di kanan */
+.widget-action {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+/* Tombol Kapsul Gabungan */
+.btn-capsule-action {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent-light); /* Warna biru muda transparan */
+    border: 1px solid rgba(37, 99, 235, 0.1);
+    padding: 6px 14px;
+    border-radius: 100px;
+    color: var(--accent) !important;
+    font-size: 0.75rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    outline: none;
+}
+
+/* Efek Hover pada Tombol */
+.btn-capsule-action:hover {
+    background: var(--accent-light) !important;
+    color: var(--accent) !important;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px var(--accent-light);
+}
+
+.btn-capsule-action i {
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+/* Pastikan widget utama tidak bertabrakan di layar kecil */
+@media (max-width: 400px) {
+    .btn-capsule-action span {
+        display: none; /* Di HP sangat kecil, hanya munculkan ikon agar tidak lari */
+    }
+    .btn-capsule-action {
+        padding: 8px;
+    }
+}
+
+/* Adaptasi Mode Gelap */
+[data-theme='dark'] .btn-capsule-action {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* --- Toast Notification (Bottom Center) --- */
+.copy-toast {
+    position: fixed;
+    bottom: -100px; /* Sembunyi di bawah */
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-body);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 50px;
+    z-index: 10000;
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+/* Muncul (Slide Up) */
+.copy-toast.show {
+    bottom: 50px; /* Naik ke atas */
+    opacity: 1;
+}
+
+/* Saat menghilang (Slide Down) */
+.copy-toast.hide-animation {
+    bottom: -100px;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 1, 1);
+}
+
+.toast-content {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* Centang Hijau di Toast */
+.toast-success-icon {
+    color: #10b981; 
+    font-size: 1.1rem;
+}
+
+/* --- Tombol Transaction Hash Premium --- */
+.btn-copy-premium {
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    color: var(--text-primary);
+    border-radius: 12px;
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-copy-premium:hover {
+    border-color: var(--accent);
+    background: rgba(37, 99, 235, 0.05);
+    color: var(--accent) !important;
+}
+
+.btn-copy-premium i {
+    transition: transform 0.2s ease;
+}
+
+.btn-copy-premium:active {
+    transform: scale(0.95);
+}
+
+/* Warna Ikon Centang */
+.text-success-copy {
+    color: #10b981 !important;
+}
+
+/* --- Modal Style Refinement --- */
+.receipt-modal-card {
+    border-radius: 28px !important;
+    overflow: hidden;
+    background: var(--bg-card) !important;
+}
+
+.receipt-header {
+    background: linear-gradient(135deg, var(--accent), #1d4ed8);
+    border-radius: 25px 25px 0 0;
+    padding: 2rem 1rem !important;
+}
+
+/* Tambahan: Pastikan teks modal selalu putih di header */
+.receipt-header h4, .receipt-header p {
+    color: #ffffff !important;
+}
+
+.header-icon-wrapper {
+    width: 70px;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.2);
+    margin: 0 auto;
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    backdrop-filter: blur(5px);
+}
+
+.receipt-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.2rem;
+}
+
+.receipt-item .label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.receipt-item .value {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.value-code {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.btn-copy-icon {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    transition: 0.2s;
+}
+
+.btn-copy-icon:hover { color: var(--accent); }
+
+/* Hash Box Modern */
+.hash-box {
+    background: var(--bg-body);
+    padding: 16px;
+    border-radius: 18px;
+    border: 1px solid var(--border);
+}
+
+.hash-box label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.hash-box code {
+    font-size: 0.8rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Status Badge */
+.badge-status-receipt {
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Status Pending */
+.badge-status-receipt.pending { 
+    background: #fef3c7; 
+    color: #92400e; 
+    border: 1px solid rgba(146, 64, 14, 0.1);
+}
+
+/* Status Success (Lebih Modern dengan Glow) */
+.badge-status-receipt.success { 
+    background: #dcfce7; 
+    color: #166534; 
+    border: 1px solid rgba(22, 101, 52, 0.2);
+    box-shadow: 0 4px 10px rgba(22, 101, 52, 0.1);
+}
+
+/* Animasi Ikon Pop */
+.animate-pop {
+    animation: iconPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes iconPop {
+    0% { transform: scale(0.5); }
+    100% { transform: scale(1); }
+}
+
+/* Penyesuaian Spinner agar lebih kecil & pas */
+.spinner-border-sm {
+    width: 0.8rem;
+    height: 0.8rem;
+    border-width: 0.15em;
+}
+
+/* Buttons */
+.btn-verify {
+    background: linear-gradient(135deg, var(--accent), #1d4ed8);
+    color: white;
+    border-radius: 16px;
+    padding: 14px;
+    font-weight: 700;
+    transition: 0.3s;
+}
+
+.btn-verify:hover {
+    background: linear-gradient(135deg, var(--accent), #1d4ed8);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+}
+
+.btn-close-receipt {
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+/* Container Ikon dengan Efek Glow */
+.header-icon-circle-glow {
+    width: 90px;
+    height: 90px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px auto;
+    position: relative;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    /* Efek cahaya berwarna di belakang */
+    box-shadow: 0 0 30px rgba(168, 85, 247, 0.4), 
+                0 0 60px rgba(37, 99, 235, 0.3);
+    animation: floating 3s ease-in-out infinite;
+}
+
+/* Styling Ikon Material */
+.animated-icon {
+    font-size: 50px !important;
+    color: white;
+    /* Memberikan sedikit efek warna pada ikon */
+    filter: drop-shadow(0 0 5px rgba(255,255,255,0.8));
+}
+
+/* Animasi Melayang (Up & Down) */
+@keyframes floating {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+/* Tambahan Efek Partikel Halus (Opsional) */
+.header-icon-circle-glow::before {
+    content: '';
+    position: absolute;
+    width: 110%;
+    height: 110%;
+    border-radius: 50%;
+    border: 1px dashed rgba(255,255,255,0.4);
+    animation: rotate-circle 10s linear infinite;
+}
+
+@keyframes rotate-circle {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Container footer agar lebih rapi */
+.sync-badge {
+    background: var(--accent-light);
+    color: var(--accent) !important;
+    padding: 5px 14px;
+    border-radius: 100px;
+    font-weight: 700;
+    font-size: 0.72rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(37, 99, 235, 0.1);
+    /* Transisi agar saat diupdate JS terasa smooth */
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.dot-sync {
+    width: 7px;
+    height: 7px;
+    background-color: #10b981; /* Warna hijau indikator aktif */
+    border-radius: 50%;
+    box-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
+    animation: blink-sync 2s infinite;
+}
+
+.card-footer-custom {
+    border-top: 1px dashed var(--border) !important;
+    padding: 1.25rem !important;
+}
+
+@keyframes blink-sync {
+    0% { opacity: 0.3; }
+    50% { opacity: 1; }
+    100% { opacity: 0.3; }
+}
+
+[data-theme='dark'] .sync-badge {
+    background: rgba(59, 130, 246, 0.15); /* Transparansi untuk mode gelap */
+}
+
+/* Styling Premium SweetAlert */
+.swal-premium-popup {
+    border-radius: 24px !important;
+    padding: 2rem !important;
+    background: var(--bg-card) !important; /* Mengikuti tema dashboard */
+    border: 1px solid var(--border) !important;
+    backdrop-filter: blur(10px);
+}
+
+.swal-title-custom {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+}
+
+/* Ikon Pencarian yang Animatif */
+.empty-data-icon {
+    font-size: 4rem;
+    color: var(--accent);
+    margin-bottom: 15px;
+    display: inline-block;
+    animation: floating-icon 3s ease-in-out infinite;
+}
+
+@keyframes floating-icon {
+    0%, 100% { transform: translateY(0); opacity: 0.8; }
+    50% { transform: translateY(-10px); opacity: 1; }
+}
+
+/* Tombol Custom Swal */
+.btn-swal-confirm {
+    background: var(--accent) !important;
+    color: white !important;
+    border-radius: 12px !important;
+    padding: 10px 35px !important;
+    font-weight: 700 !important;
+    font-size: 0.9rem !important;
+    border: none !important;
+    box-shadow: 0 4px 15px var(--accent-light) !important;
+    transition: all 0.3s ease;
+}
+
+.btn-swal-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px var(--accent-light) !important;
+}
+
+/* Membuat spinner tidak merusak layout code */
+.spinner-border-sm {
+    border-width: 0.15em;
+    vertical-align: middle;
+}
+
+.disabled-btn {
+    cursor: not-allowed !important;
+}
+
+/* Efek Berputar 180 derajat secara halus */
+@keyframes hourglass-rotate {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(180deg); }
+    100% { transform: rotate(180deg); }
+}
+
+.anim-hourglass {
+    display: inline-block;
+    animation: hourglass-rotate 2s infinite ease-in-out;
+}
+
+/* Atau Efek Berdenyut (Pulse) jika tidak ingin berputar */
+@keyframes pulse-soft {
+    0% { opacity: 1; }
+    50% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+
+.anim-pulse {
+    display: inline-block;
+    animation: pulse-soft 1.5s infinite ease-in-out;
+}
+
+/* Animasi khusus untuk ikon jam pasir di header */
+.animated-icon:contains('hourglass_empty') {
+    animation: rotateHourglass 2s infinite linear;
+}
+
+@keyframes rotateHourglass {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(180deg); }
+    100% { transform: rotate(180deg); }
+}
+
+/* Biar transisi warna header halus saat berubah dari oranye ke hijau */
+.header-icon-circle-glow {
+    transition: all 0.5s ease-in-out;
+}
+
+/* Efek pulse pada seluruh widget saat pending */
+.widget-pending {
+    border: 1px solid rgba(245, 158, 11, 0.3) !important;
+    animation: pulse-widget 2s infinite ease-in-out;
+}
+
+@keyframes pulse-widget {
+    0% { box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); }
+    50% { box-shadow: 0 8px 32px 0 rgba(245, 158, 11, 0.2); }
+    100% { box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); }
+}
+
+/* Pastikan ikon hourglass berputar jika belum ada di CSS Anda */
+.anim-hourglass {
+    display: inline-block;
+    animation: rotate-hf 2s infinite linear;
+}
+
+@keyframes rotate-hf {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
