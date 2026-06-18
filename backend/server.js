@@ -93,29 +93,32 @@ app.post('/verify-token', (req, res) => {
   const { token } = req.body;
   if (!token) return res.status(400).json({ error: 'Token QR tidak boleh kosong' });
 
-  // Jika tokens array kosong (tidak pakai token validasi), langsung OK
   if (tokens.length === 0) {
     return res.json({ success: true, message: 'Token QR valid, silakan input NIK' });
   }
 
-  // Cek di array tokens (sesuai struktur generate Anda)
   const tokenData = tokens.find(t => t.qrToken === token);
 
   if (!tokenData) {
     return res.status(403).json({ error: 'Token QR tidak terdaftar' });
   }
 
+  // JIKA SUDAH TERPAKAI: Beri akses masuk ke tahap NIK tapi tandai isUsed
   if (tokenData.used === true) {
-    return res.status(403).json({ error: 'Token ini sudah digunakan' });
+    return res.json({ 
+      success: true, 
+      isUsed: true, 
+      message: 'Token sudah digunakan. Masukkan NIK Anda untuk memverifikasi status.' 
+    });
   }
 
-  // Jika lolos → success
-  return res.json({ success: true, message: 'Token valid, silakan input NIK' });
+  // JIKA BELUM TERPAKAI
+  return res.json({ success: true, isUsed: false, message: 'Token valid, silakan input NIK' });
 });
 
 // Endpoint: Verifikasi NIK (cek apakah NIK terdaftar di proofs.json)
 app.post('/verify-nik', (req, res) => {
-  const { nik } = req.body;
+  const { nik, token } = req.body;
   if (!nik || nik.trim().length !== 16 || !/^\d{16}$/.test(nik)) {
     return res.status(400).json({ success: false, error: 'NIK harus tepat 16 digit angka' });
   }
@@ -123,18 +126,43 @@ app.post('/verify-nik', (req, res) => {
   const cleanNik = nik.trim();
   const nikHash = '0x' + keccak256(cleanNik).toString('hex');
 
+  // 1. Cek apakah NIK terdaftar di DPT (proofs.json)
   const proofData = proofs.find(p => p.nikHash === nikHash);
   if (!proofData) {
     return res.status(403).json({ success: false, error: 'NIK tidak terdaftar sebagai pemilih' });
   }
 
-  // --- PERBAIKAN DI SINI ---
-  // Cek apakah nikHash ada di object voted DAN property voted-nya bernilai true
-  if (voted[nikHash] && (voted[nikHash] === true || voted[nikHash].voted === true)) {
-    return res.status(403).json({ success: false, error: 'NIK ini sudah memberikan suara' });
+  // 2. VALIDASI TOKEN TERHADAP NIK (KUNCI PASANGAN)
+  const tokenData = tokens.find(t => t.qrToken === token);
+
+  // A. Jika token ini sudah digunakan, pastikan yang pakai adalah NIK ini
+  if (tokenData && tokenData.used === true) {
+    if (tokenData.voter !== nikHash) {
+      return res.status(403).json({ 
+        success: false, 
+        error: 'Token ini sudah tertaut dengan NIK lain.' 
+      });
+    }
   }
 
-  res.json({ success: true, message: 'NIK valid' });
+  // B. PERBAIKAN: Cek apakah NIK ini sudah pernah menggunakan token LAIN sebelumnya
+  // Ini mencegah satu NIK menggunakan banyak token
+  const tokenLain = tokens.find(t => t.voter === nikHash && t.qrToken !== token);
+  if (tokenLain) {
+    return res.status(403).json({
+      success: false,
+      error: 'NIK ini sudah memberikan suara.'
+    });
+  }
+
+  // 3. Cek apakah sudah memberikan suara (Double Voting)
+  const hasVoted = !!voted[nikHash];
+
+  res.json({ 
+    success: true, 
+    alreadyVoted: hasVoted,
+    message: hasVoted ? 'Data ditemukan, mengalihkan...' : 'NIK valid' 
+  });
 });
 
 // Endpoint untuk cek status voting langsung dari blockchain
@@ -174,7 +202,7 @@ app.get('/voting-status', async (req, res) => {
   }
 });
 
-// Endpoint: Vote (verifikasi NIK + proof + kirim tx ke contract)
+// Endpoint: Vote (server.js)
 app.post('/vote', async (req, res) => {
     const { nik, candidateId, token } = req.body;
 
@@ -183,35 +211,61 @@ app.post('/vote', async (req, res) => {
     const cleanNik = nik.trim();
     const nikHash = '0x' + keccak256(cleanNik).toString('hex');
 
-    // Cek Double Voting di Memori (Database JSON)
-    if (voted[nikHash] && (voted[nikHash] === true || voted[nikHash].voted === true)) {
-        return res.status(403).json({ error: 'NIK ini sudah memberikan suara' });
+    // =========================================================================
+// DETEKSI DOUBLE VOTING: TUNGGU TX HASH LALU KIRIM KE FRONTEND VIA STATUS 200
+// =========================================================================
+if (voted[nikHash] && (voted[nikHash] === true || voted[nikHash].voted === true)) {
+    
+    const proofData = proofs.find(p => p.nikHash === nikHash);
+    let errorTxHash = null;
+    
+    if (proofData) {
+        try {
+            const feeData = await provider.getFeeData();
+            
+            // Kita gunakan 'await' hanya sampai transaksi terkirim ke memori pool (mendapatkan hash), 
+            // kita TIDAK menggunakan tx.wait() agar tidak menyumbat antrean utama.
+            const tx = await contract.vote(nikHash, proofData.proof, candidateId, {
+                gasLimit: 250000,
+                maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
+                maxFeePerGas: feeData.maxFeePerGas
+            });
+            
+            errorTxHash = tx.hash;
+            console.log(`[⚠️ Audit Kecurangan] Transaksi double vote terkirim ke Etherscan: ${errorTxHash}`);
+            
+        } catch (err) {
+            // Jika langsung gagal di level provider sebelum dapat hash
+            console.error(`[❌ Audit Gagal] Gagal menyiarkan transaksi kecurangan:`, err.message);
+        }
     }
 
-    // Cek apakah sedang ada dalam antrean aktif
+    // Kembalikan hash transaksi kecurangan tersebut langsung ke frontend
+    return res.status(200).json({ 
+        success: false,
+        isDoubleVote: true,
+        error: 'NIK ini sudah memberikan suara',
+        txHash: errorTxHash // Kirim hash spesifik ke frontend
+    });
+}
+
+    // Jalur normal untuk pemilih asli pertama kali
     if (activeLocks.has(nikHash)) {
         return res.status(429).json({ error: 'NIK ini sedang dalam proses antrean.' });
     }
 
-    // Ambil data proof
     const proofData = proofs.find(p => p.nikHash === nikHash);
-    if (!proofData) return res.status(403).json({ error: 'NIK tidak terdaftar' });
+    if (!proofData) return res.status(200).json({ success: false, error: 'NIK tidak terdaftar' });
 
-    // MASUKKAN KE ANTREAN
     activeLocks.add(nikHash);
     
-    // Kirim response "Pending" ke UI agar user tidak menunggu lama
-    // Kita berikan janji bahwa suara sedang diproses
     res.json({
         success: true,
         message: 'Suara Anda telah masuk antrean blockchain. Mohon tunggu konfirmasi.',
         nikHash: nikHash
     });
 
-    // Tambahkan ke array antrean untuk diproses satu per satu
     voteQueue.push({ nikHash, proofData, candidateId, token });
-    
-    // Jalankan pemroses antrean (jika belum jalan)
     processVoteQueue();
 });
 
@@ -248,6 +302,7 @@ async function processVoteQueue() {
             const tokenIdx = tokens.findIndex(t => t.qrToken === token);
             if (tokenIdx !== -1) {
                 tokens[tokenIdx].used = true;
+                tokens[tokenIdx].voter = nikHash;
                 fs.writeFileSync(TOKENS_PATH, JSON.stringify(tokens, null, 2));
             }
         }
@@ -386,7 +441,8 @@ app.get('/check-vote-status/:nik', (req, res) => {
             success: true,
             status: 'confirmed',
             txHash: voteData.txHash,
-            nikHash: nikHash
+            nikHash: nikHash,
+            timestamp: voteData.timestamp
         });
     }
 
